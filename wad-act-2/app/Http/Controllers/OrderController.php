@@ -66,6 +66,13 @@ class OrderController extends Controller
 
         foreach ($validated['products'] as $item) {
             $product = Product::findOrFail($item['id']);
+
+            if ($product->stock < $item['quantity']) {
+                return back()->withInput()->withErrors([
+                    'products' => "Insufficient stock for product: {$product->name}. Only {$product->stock} available."
+                ]);
+            }
+
             $unitPrice = $product->price;
             $totalAmount += $unitPrice * $item['quantity'];
             $pivotData[$product->id] = [
@@ -82,6 +89,11 @@ class OrderController extends Controller
 
         // Attach products with pivot data (Many-to-Many via order_items)
         $order->products()->attach($pivotData);
+
+        // Deduct stock
+        foreach ($pivotData as $productId => $data) {
+            Product::where('id', $productId)->decrement('stock', $data['quantity']);
+        }
 
         return redirect()->route('orders.index')
             ->with('success', 'Order placed successfully.');
@@ -128,6 +140,25 @@ class OrderController extends Controller
         $totalAmount = 0;
         $pivotData = [];
 
+        // Pre-check stock
+        $order->load('products');
+        foreach ($validated['products'] as $item) {
+            $product = Product::findOrFail($item['id']);
+            $oldProduct = $order->products->firstWhere('id', $item['id']);
+            $oldQuantity = $oldProduct ? $oldProduct->pivot->quantity : 0;
+
+            if (($product->stock + $oldQuantity) < $item['quantity']) {
+                return back()->withInput()->withErrors([
+                    'products' => "Insufficient stock for product: {$product->name}. Only " . ($product->stock + $oldQuantity) . " available."
+                ]);
+            }
+        }
+
+        // Restore old stock
+        foreach ($order->products as $oldProduct) {
+            $oldProduct->increment('stock', $oldProduct->pivot->quantity);
+        }
+
         foreach ($validated['products'] as $item) {
             $product = Product::findOrFail($item['id']);
             $unitPrice = $product->price;
@@ -136,6 +167,9 @@ class OrderController extends Controller
                 'quantity'   => $item['quantity'],
                 'unit_price' => $unitPrice,
             ];
+
+            // Deduct new stock
+            $product->decrement('stock', $item['quantity']);
         }
 
         $order->update(['total_amount' => $totalAmount]);
@@ -153,6 +187,11 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         Gate::authorize('delete', $order);
+
+        // Restore stock before deleting
+        foreach ($order->products as $product) {
+            $product->increment('stock', $product->pivot->quantity);
+        }
 
         $order->delete();
 
