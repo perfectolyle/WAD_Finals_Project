@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
@@ -91,7 +92,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $this->authorizeOrder($order);
+        Gate::authorize('view', $order);
 
         // Eager loading the related user and products
         $order->load(['user.profile', 'products']);
@@ -104,7 +105,7 @@ class OrderController extends Controller
      */
     public function edit(Order $order)
     {
-        $this->authorizeOrder($order);
+        Gate::authorize('update', $order);
 
         $order->load('products');
         $products = Product::all();
@@ -116,7 +117,7 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-        $this->authorizeOrder($order);
+        Gate::authorize('update', $order);
 
         $validated = $request->validate([
             'products'            => ['required', 'array', 'min:1'],
@@ -151,7 +152,7 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        $this->authorizeOrder($order);
+        Gate::authorize('delete', $order);
 
         $order->delete();
 
@@ -159,15 +160,4 @@ class OrderController extends Controller
             ->with('success', 'Order deleted successfully.');
     }
 
-    /**
-     * Ensure the authenticated user owns the order or is an admin.
-     */
-    private function authorizeOrder(Order $order): void
-    {
-        $user = auth()->user();
-
-        if (! $user->isAdmin() && $order->user_id !== $user->id) {
-            abort(403, 'You can only manage your own orders.');
-        }
-    }
 }

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Gate;
 
 class CustomerController extends Controller implements HasMiddleware
 {
@@ -44,11 +45,7 @@ class CustomerController extends Controller implements HasMiddleware
      */
     public function show(User $customer)
     {
-        $user = auth()->user();
-
-        if (! $user->isAdmin() && $user->id !== $customer->id) {
-            abort(403, 'You can only view your own account.');
-        }
+        Gate::authorize('view', $customer);
 
         // Eager load profile and orders with products
         $customer->load(['profile', 'orders.products']);
@@ -62,11 +59,7 @@ class CustomerController extends Controller implements HasMiddleware
      */
     public function edit(User $customer)
     {
-        $user = auth()->user();
-
-        if (!$user->isAdmin() && $user->id !== $customer->id) {
-            abort(403, 'You can only edit your own account.');
-        }
+        Gate::authorize('update', $customer);
 
         $customer->load('profile');
         return view('customers.edit', compact('customer'));
@@ -77,11 +70,7 @@ class CustomerController extends Controller implements HasMiddleware
      */
     public function update(Request $request, User $customer)
     {
-        $user = auth()->user();
-
-        if (!$user->isAdmin() && $user->id !== $customer->id) {
-            abort(403, 'You can only update your own account.');
-        }
+        Gate::authorize('update', $customer);
 
         $validated = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
@@ -102,7 +91,7 @@ class CustomerController extends Controller implements HasMiddleware
         }
 
         // Only admin can change roles
-        if ($user->isAdmin() && isset($validated['role'])) {
+        if ($request->user()->isAdmin() && isset($validated['role'])) {
             $customer->update(['role' => $validated['role']]);
         }
 
