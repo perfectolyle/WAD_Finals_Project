@@ -41,8 +41,12 @@ export default function OrderEdit({ order, products }: Props) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const validLines = lines.filter(l => l.id > 0 && l.quantity > 0);
+        
         put(`/orders/${order.id}`, {
-            data: { products: validLines } as any,
+            onBefore: () => {
+                setData('products', validLines);
+            },
+            preserveScroll: true,
         });
     };
 

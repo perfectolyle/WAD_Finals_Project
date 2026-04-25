@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -88,19 +89,21 @@ class OrderController extends Controller
             ];
         }
 
-        $order = Order::create([
-            'user_id'      => auth()->id(),
-            'order_date'   => now(),
-            'total_amount' => $totalAmount,
-        ]);
+        DB::transaction(function () use ($validated, $pivotData, $totalAmount) {
+            $order = Order::create([
+                'user_id'      => auth()->id(),
+                'order_date'   => now(),
+                'total_amount' => $totalAmount,
+            ]);
 
-        // Attach products with pivot data (Many-to-Many via order_items)
-        $order->products()->attach($pivotData);
+            // Attach products with pivot data (Many-to-Many via order_items)
+            $order->products()->attach($pivotData);
 
-        // Deduct stock
-        foreach ($pivotData as $productId => $data) {
-            Product::where('id', $productId)->decrement('stock', $data['quantity']);
-        }
+            // Deduct stock
+            foreach ($pivotData as $productId => $data) {
+                Product::where('id', $productId)->decrement('stock', $data['quantity']);
+            }
+        });
 
         return redirect()->route('orders.index')
             ->with('success', 'Order placed successfully.');
@@ -165,28 +168,30 @@ class OrderController extends Controller
             }
         }
 
-        // Restore old stock
-        foreach ($order->products as $oldProduct) {
-            $oldProduct->increment('stock', $oldProduct->pivot->quantity);
-        }
+        DB::transaction(function () use ($order, $validated, &$pivotData, &$totalAmount) {
+            // Restore old stock
+            foreach ($order->products as $oldProduct) {
+                $oldProduct->increment('stock', $oldProduct->pivot->quantity);
+            }
 
-        foreach ($validated['products'] as $item) {
-            $product = Product::findOrFail($item['id']);
-            $unitPrice = $product->price;
-            $totalAmount += $unitPrice * $item['quantity'];
-            $pivotData[$product->id] = [
-                'quantity'   => $item['quantity'],
-                'unit_price' => $unitPrice,
-            ];
+            foreach ($validated['products'] as $item) {
+                $product = Product::findOrFail($item['id']);
+                $unitPrice = $product->price;
+                $totalAmount += $unitPrice * $item['quantity'];
+                $pivotData[$product->id] = [
+                    'quantity'   => $item['quantity'],
+                    'unit_price' => $unitPrice,
+                ];
 
-            // Deduct new stock
-            $product->decrement('stock', $item['quantity']);
-        }
+                // Deduct new stock
+                $product->decrement('stock', $item['quantity']);
+            }
 
-        $order->update(['total_amount' => $totalAmount]);
+            $order->update(['total_amount' => $totalAmount]);
 
-        // Sync products (replaces existing pivot rows)
-        $order->products()->sync($pivotData);
+            // Sync products (replaces existing pivot rows)
+            $order->products()->sync($pivotData);
+        });
 
         return redirect()->route('orders.show', $order)
             ->with('success', 'Order updated successfully.');
@@ -199,12 +204,14 @@ class OrderController extends Controller
     {
         Gate::authorize('delete', $order);
 
-        // Restore stock before deleting
-        foreach ($order->products as $product) {
-            $product->increment('stock', $product->pivot->quantity);
-        }
+        DB::transaction(function () use ($order) {
+            // Restore stock before deleting
+            foreach ($order->products as $product) {
+                $product->increment('stock', $product->pivot->quantity);
+            }
 
-        $order->delete();
+            $order->delete();
+        });
 
         return redirect()->route('orders.index')
             ->with('success', 'Order deleted successfully.');

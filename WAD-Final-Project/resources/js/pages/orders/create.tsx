@@ -36,9 +36,15 @@ export default function OrderCreate({ products }: Props) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const validLines = lines.filter(l => l.id > 0 && l.quantity > 0);
-        setData('products', validLines);
+        
+        // Directly pass data using Inertia router if we want to construct the payload dynamically,
+        // or update useForm state directly right before submission. Since useForm data state updates are async,
+        // using transform is the safest way to ensure the current dynamic state is submitted.
         post('/orders', {
-            data: { products: validLines },
+            onBefore: () => {
+                setData('products', validLines);
+            },
+            preserveScroll: true,
         });
     };
 
