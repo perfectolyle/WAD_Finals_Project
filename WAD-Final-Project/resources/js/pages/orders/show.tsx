@@ -13,7 +13,7 @@ export default function OrderShow({ order }: Props) {
         { title: `Order #${order.id}`, href: `/orders/${order.id}` },
     ];
 
-    const flash = (usePage().props as any).flash;
+    const flash = (usePage().props as { flash?: { success?: string } }).flash;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

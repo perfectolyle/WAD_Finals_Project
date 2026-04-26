@@ -2,7 +2,6 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Product } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
 
 interface Props {
     products: Product[];
@@ -20,36 +19,32 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function OrderCreate({ products }: Props) {
-    const [lines, setLines] = useState<OrderLine[]>([{ id: 0, quantity: 1 }]);
-    const { setData, post, processing, errors } = useForm({
-        products: [] as { id: number; quantity: number }[],
+    const { data, setData, post, processing, errors, transform } = useForm({
+        products: [{ id: 0, quantity: 1 }] as { id: number; quantity: number }[],
     });
 
-    const addLine = () => setLines([...lines, { id: 0, quantity: 1 }]);
-    const removeLine = (index: number) => setLines(lines.filter((_, i) => i !== index));
+    transform((formData) => ({
+        ...formData,
+        products: formData.products.filter(l => l.id > 0 && l.quantity > 0),
+    }));
+
+    const addLine = () => setData('products', [...data.products, { id: 0, quantity: 1 }]);
+    const removeLine = (index: number) => setData('products', data.products.filter((_, i) => i !== index));
     const updateLine = (index: number, field: keyof OrderLine, value: number) => {
-        const updated = [...lines];
+        const updated = [...data.products];
         updated[index] = { ...updated[index], [field]: value };
-        setLines(updated);
+        setData('products', updated);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const validLines = lines.filter(l => l.id > 0 && l.quantity > 0);
-        
-        // Directly pass data using Inertia router if we want to construct the payload dynamically,
-        // or update useForm state directly right before submission. Since useForm data state updates are async,
-        // using transform is the safest way to ensure the current dynamic state is submitted.
         post('/orders', {
-            onBefore: () => {
-                setData('products', validLines);
-            },
             preserveScroll: true,
         });
     };
 
     const getTotal = () => {
-        return lines.reduce((sum, line) => {
+        return data.products.reduce((sum, line) => {
             const product = products.find(p => p.id === line.id);
             return sum + (product ? product.price * line.quantity : 0);
         }, 0);
@@ -70,7 +65,7 @@ export default function OrderCreate({ products }: Props) {
                         </div>
                         {errors.products && <p className="mb-3 text-sm text-destructive">{errors.products}</p>}
                         <div className="space-y-3">
-                            {lines.map((line, index) => (
+                            {data.products.map((line, index) => (
                                 <div key={index} className="flex items-center gap-3 rounded-lg border border-border p-3">
                                     <select
                                         value={line.id}
@@ -96,7 +91,7 @@ export default function OrderCreate({ products }: Props) {
                                             return p ? (p.price * line.quantity).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '0.00';
                                         })()}
                                     </span>
-                                    {lines.length > 1 && (
+                                    {data.products.length > 1 && (
                                         <button type="button" onClick={() => removeLine(index)} className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
                                             <Trash2 className="h-4 w-4" />
                                         </button>

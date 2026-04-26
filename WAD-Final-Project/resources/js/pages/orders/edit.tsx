@@ -2,7 +2,6 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Order, type Product } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
 
 interface Props {
     order: Order;
@@ -15,10 +14,12 @@ interface OrderLine {
 }
 
 export default function OrderEdit({ order, products }: Props) {
+    const formattedId = order.id.toString().padStart(4, '0');
+    
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
         { title: 'Orders', href: '/orders' },
-        { title: `Order #${order.id}`, href: `/orders/${order.id}` },
+        { title: `Order #${formattedId}`, href: `/orders/${order.id}` },
         { title: 'Edit', href: `/orders/${order.id}/edit` },
     ];
 
@@ -27,31 +28,32 @@ export default function OrderEdit({ order, products }: Props) {
         quantity: p.pivot?.quantity ?? 1,
     })) ?? [{ id: 0, quantity: 1 }];
 
-    const [lines, setLines] = useState<OrderLine[]>(initialLines);
-    const { put, processing, errors } = useForm({});
+    const { data, setData, put, processing, errors, transform } = useForm({
+        products: initialLines as { id: number; quantity: number }[],
+    });
 
-    const addLine = () => setLines([...lines, { id: 0, quantity: 1 }]);
-    const removeLine = (index: number) => setLines(lines.filter((_, i) => i !== index));
+    transform((formData) => ({
+        ...formData,
+        products: formData.products.filter(l => l.id > 0 && l.quantity > 0),
+    }));
+
+    const addLine = () => setData('products', [...data.products, { id: 0, quantity: 1 }]);
+    const removeLine = (index: number) => setData('products', data.products.filter((_, i) => i !== index));
     const updateLine = (index: number, field: keyof OrderLine, value: number) => {
-        const updated = [...lines];
+        const updated = [...data.products];
         updated[index] = { ...updated[index], [field]: value };
-        setLines(updated);
+        setData('products', updated);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const validLines = lines.filter(l => l.id > 0 && l.quantity > 0);
-        
         put(`/orders/${order.id}`, {
-            onBefore: () => {
-                setData('products', validLines);
-            },
             preserveScroll: true,
         });
     };
 
     const getTotal = () => {
-        return lines.reduce((sum, line) => {
+        return data.products.reduce((sum, line) => {
             const product = products.find(p => p.id === line.id);
             return sum + (product ? product.price * line.quantity : 0);
         }, 0);
@@ -59,9 +61,9 @@ export default function OrderEdit({ order, products }: Props) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Edit Order #${order.id}`} />
+            <Head title={`Edit Order #${formattedId}`} />
             <div className="mx-auto w-full max-w-3xl p-6">
-                <h1 className="mb-6 text-2xl font-bold tracking-tight">Edit Order #{order.id}</h1>
+                <h1 className="mb-6 text-2xl font-bold tracking-tight">Edit Order #{formattedId}</h1>
                 <form onSubmit={handleSubmit} className="space-y-6 rounded-xl border border-border bg-card p-6 shadow-sm">
                     <div>
                         <div className="mb-3 flex items-center justify-between">
@@ -70,9 +72,9 @@ export default function OrderEdit({ order, products }: Props) {
                                 <Plus className="h-4 w-4" /> Add Item
                             </button>
                         </div>
-                        {errors.products && <p className="mb-3 text-sm text-destructive">{(errors as any).products}</p>}
+                        {errors.products && <p className="mb-3 text-sm text-destructive">{errors.products}</p>}
                         <div className="space-y-3">
-                            {lines.map((line, index) => (
+                            {data.products.map((line, index) => (
                                 <div key={index} className="flex items-center gap-3 rounded-lg border border-border p-3">
                                     <select value={line.id} onChange={(e) => updateLine(index, 'id', Number(e.target.value))} className="h-10 flex-1 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
                                         <option value={0}>Select product...</option>
@@ -87,7 +89,7 @@ export default function OrderEdit({ order, products }: Props) {
                                             return p ? (p.price * line.quantity).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '0.00';
                                         })()}
                                     </span>
-                                    {lines.length > 1 && (
+                                    {data.products.length > 1 && (
                                         <button type="button" onClick={() => removeLine(index)} className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                                     )}
                                 </div>

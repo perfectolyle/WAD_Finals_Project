@@ -144,7 +144,7 @@ export default function ScrollCanvas({ totalFrames, framePath, scrollHeight = 50
             style={{ height: `${scrollHeight}vh` }}
             className="relative"
         >
-            <div className="sticky top-0 h-screen w-full bg-[#1a1210]">
+            <div className="sticky top-0 h-[100dvh] w-full bg-[#1a1210]">
                 <canvas
                     ref={canvasRef}
                     className="h-full w-full"

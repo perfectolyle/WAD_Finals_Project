@@ -18,30 +18,29 @@ import {
     Star,
     TrendingUp,
     Truck,
-    UserPlus,
-    Zap
+    UserPlus
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function Welcome() {
-    const { auth } = usePage().props as any;
+    const { auth } = usePage().props as { auth?: { user?: unknown } };
     const isLoggedIn = !!auth?.user;
     const [searchQuery, setSearchQuery] = useState('');
 
     return (
-        <div className="bg-[#110c0a] min-h-screen text-white font-sans selection:bg-[#e8734a]/30">
+        <div className="bg-[#110c0a] min-h-[100dvh] text-white font-sans selection:bg-[#e8734a]/30">
             <Head title="Welcome">
                 <meta name="description" content="LogisTECH — The most advanced logistics and e-commerce management platform. Track, manage, and scale." />
             </Head>
 
             {/* ── Navbar ── */}
             <nav className="fixed left-0 right-0 top-0 z-50 border-b border-white/5 bg-black/40 backdrop-blur-2xl">
-                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#e8734a] to-[#f0a070] shadow-lg shadow-[#e8734a]/20">
-                            <Package className="h-5 w-5 text-white" />
+                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#e8734a] to-[#f0a070] shadow-lg shadow-[#e8734a]/20">
+                            <Package className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                         </div>
-                        <span className="text-xl font-black tracking-tight text-white">
+                        <span className="text-lg sm:text-xl font-black tracking-tight text-white">
                             Logis<span className="text-[#f0a070]">TECH</span>
                         </span>
                     </div>
@@ -50,27 +49,27 @@ export default function Welcome() {
                         <a href="#how-it-works" className="hover:text-white transition-colors">How it Works</a>
                         <a href="#stats" className="hover:text-white transition-colors">Impact</a>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                         {isLoggedIn ? (
                             <Link
                                 href="/dashboard"
-                                className="inline-flex h-10 items-center gap-2 rounded-full bg-gradient-to-r from-[#e8734a] to-[#f0a070] px-6 text-sm font-bold text-white shadow-lg shadow-[#e8734a]/25 transition-all hover:scale-105 hover:shadow-[#e8734a]/40"
+                                className="inline-flex h-8 sm:h-10 items-center gap-1 sm:gap-2 rounded-full bg-gradient-to-r from-[#e8734a] to-[#f0a070] px-3 sm:px-6 text-xs sm:text-sm font-bold text-white shadow-lg shadow-[#e8734a]/25 transition-all hover:scale-105 hover:shadow-[#e8734a]/40"
                             >
-                                Dashboard <ArrowRight className="h-4 w-4" />
+                                Dashboard <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Link>
                         ) : (
                             <>
                                 <Link
                                     href="/login"
-                                    className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 text-sm font-medium text-white/90 transition-all hover:bg-white/10"
+                                    className="inline-flex h-8 sm:h-10 items-center gap-1 sm:gap-2 rounded-full border border-white/10 bg-white/5 px-3 sm:px-5 text-xs sm:text-sm font-medium text-white/90 transition-all hover:bg-white/10"
                                 >
-                                    <LogIn className="h-4 w-4" /> Log in
+                                    <LogIn className="h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden min-[380px]:inline">Log in</span>
                                 </Link>
                                 <Link
                                     href="/register"
-                                    className="inline-flex h-10 items-center gap-2 rounded-full bg-gradient-to-r from-[#e8734a] to-[#f0a070] px-5 text-sm font-bold text-white shadow-lg shadow-[#e8734a]/25 transition-all hover:scale-105 hover:shadow-[#e8734a]/40"
+                                    className="inline-flex h-8 sm:h-10 items-center gap-1 sm:gap-2 rounded-full bg-gradient-to-r from-[#e8734a] to-[#f0a070] px-3 sm:px-5 text-xs sm:text-sm font-bold text-white shadow-lg shadow-[#e8734a]/25 transition-all hover:scale-105 hover:shadow-[#e8734a]/40"
                                 >
-                                    <UserPlus className="h-4 w-4" /> Sign up
+                                    <UserPlus className="h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden min-[380px]:inline">Sign up</span>
                                 </Link>
                             </>
                         )}
@@ -95,7 +94,7 @@ export default function Welcome() {
                         LogisTECH v2.0 is Live
                     </div>
                     
-                    <h1 className="animate-fade-in-up mb-8 text-5xl font-black leading-[1.1] tracking-tight text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] md:text-7xl lg:text-[5.5rem]" style={{ animationDelay: '0.1s' }}>
+                    <h1 className="animate-fade-in-up mb-6 sm:mb-8 text-4xl sm:text-5xl font-black leading-[1.1] tracking-tight text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] md:text-7xl lg:text-[5.5rem]" style={{ animationDelay: '0.1s' }}>
                         The Future of <br className="hidden md:block"/>
                         <span className="bg-gradient-to-r from-[#e8734a] via-[#f0a070] to-[#ffc8a8] bg-clip-text text-transparent drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">Global Logistics</span>
                     </h1>
@@ -107,16 +106,16 @@ export default function Welcome() {
                     {/* Tracking Search Bar */}
                     <div className="animate-fade-in-up mt-10 mx-auto max-w-md relative group" style={{ animationDelay: '0.3s' }}>
                         <div className="absolute -inset-1 bg-gradient-to-r from-[#e8734a] to-[#f0a070] rounded-full blur opacity-40 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
-                        <div className="relative flex items-center bg-black/60 border border-white/20 rounded-full p-2 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
-                            <Search className="h-5 w-5 text-white/60 ml-3" />
+                        <div className="relative flex items-center bg-black/60 border border-white/20 rounded-full p-1.5 sm:p-2 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+                            <Search className="hidden sm:block h-5 w-5 text-white/60 ml-3" />
                             <input 
                                 type="text" 
-                                placeholder="Enter tracking number (e.g. LTX-90210)..." 
-                                className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-white/50 text-sm px-4"
+                                placeholder="Enter tracking number..." 
+                                className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-white/50 text-xs sm:text-sm px-3 sm:px-4"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
-                            <button className="bg-white text-black px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#f0a070] hover:text-white transition-colors">
+                            <button className="bg-white text-black px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold hover:bg-[#f0a070] hover:text-white transition-colors">
                                 Track
                             </button>
                         </div>
@@ -168,7 +167,7 @@ export default function Welcome() {
 
                 {/* Scene 1: Warehouse */}
                 <div
-                    className="pointer-events-none fixed left-0 right-0 top-0 z-30 flex h-screen items-center justify-start p-4 md:p-12 lg:p-24"
+                    className="pointer-events-none fixed left-0 right-0 top-0 z-30 flex h-[100dvh] items-center justify-center md:justify-start p-4 md:p-12 lg:p-24"
                     id="scene-warehouse"
                     style={{ opacity: 0, transform: 'translateY(40px)' }}
                 >
@@ -210,7 +209,7 @@ export default function Welcome() {
 
                 {/* Scene 2: Transit */}
                 <div
-                    className="pointer-events-none fixed left-0 right-0 top-0 z-30 flex h-screen items-center justify-end p-4 md:p-12 lg:p-24"
+                    className="pointer-events-none fixed left-0 right-0 top-0 z-30 flex h-[100dvh] items-center justify-center md:justify-end p-4 md:p-12 lg:p-24"
                     id="scene-delivery"
                     style={{ opacity: 0, transform: 'translateY(40px)' }}
                 >
@@ -252,7 +251,7 @@ export default function Welcome() {
 
                 {/* Scene 3: Delivered */}
                 <div
-                    className="pointer-events-none fixed left-0 right-0 top-0 z-30 flex h-screen items-center justify-center p-4"
+                    className="pointer-events-none fixed left-0 right-0 top-0 z-30 flex h-[100dvh] items-center justify-center p-4"
                     id="scene-delivered"
                     style={{ opacity: 0, transform: 'translateY(40px)' }}
                 >
@@ -295,22 +294,22 @@ export default function Welcome() {
             {/* ── Global Stats Section ── */}
             <section id="stats" className="relative z-10 border-y border-white/5 bg-[#0a0706] py-12 overflow-hidden">
                 <div className="mx-auto max-w-7xl px-6 relative">
-                    <div className="grid grid-cols-2 gap-8 md:grid-cols-4 divide-x divide-white/5">
-                        <div className="text-center px-4">
-                            <div className="text-4xl font-black text-white tracking-tighter mb-2">12M+</div>
-                            <div className="text-xs font-medium uppercase tracking-widest text-white/40">Parcels Delivered</div>
+                    <div className="grid grid-cols-2 gap-y-12 gap-x-4 md:grid-cols-4 md:gap-8 md:divide-x md:divide-white/5">
+                        <div className="text-center px-2 md:px-4">
+                            <div className="text-3xl md:text-4xl font-black text-white tracking-tighter mb-2">12M+</div>
+                            <div className="text-[10px] md:text-xs font-medium uppercase tracking-widest text-white/40">Parcels Delivered</div>
                         </div>
-                        <div className="text-center px-4">
-                            <div className="text-4xl font-black text-[#f0a070] tracking-tighter mb-2">99.9%</div>
-                            <div className="text-xs font-medium uppercase tracking-widest text-white/40">SLA Compliance</div>
+                        <div className="text-center px-2 md:px-4 border-l border-white/5 md:border-l-0">
+                            <div className="text-3xl md:text-4xl font-black text-[#f0a070] tracking-tighter mb-2">99.9%</div>
+                            <div className="text-[10px] md:text-xs font-medium uppercase tracking-widest text-white/40">SLA Compliance</div>
                         </div>
-                        <div className="text-center px-4">
-                            <div className="text-4xl font-black text-white tracking-tighter mb-2">24/7</div>
-                            <div className="text-xs font-medium uppercase tracking-widest text-white/40">Active Monitoring</div>
+                        <div className="text-center px-2 md:px-4 md:border-t-0">
+                            <div className="text-3xl md:text-4xl font-black text-white tracking-tighter mb-2">24/7</div>
+                            <div className="text-[10px] md:text-xs font-medium uppercase tracking-widest text-white/40">Active Monitoring</div>
                         </div>
-                        <div className="text-center px-4">
-                            <div className="text-4xl font-black text-white tracking-tighter mb-2">150+</div>
-                            <div className="text-xs font-medium uppercase tracking-widest text-white/40">Global Hubs</div>
+                        <div className="text-center px-2 md:px-4 border-l border-white/5 md:border-l-0 md:border-t-0">
+                            <div className="text-3xl md:text-4xl font-black text-white tracking-tighter mb-2">150+</div>
+                            <div className="text-[10px] md:text-xs font-medium uppercase tracking-widest text-white/40">Global Hubs</div>
                         </div>
                     </div>
                 </div>
@@ -363,7 +362,7 @@ export default function Welcome() {
                 <div className="mx-auto max-w-7xl px-6">
                     <div className="mb-16 md:w-2/3">
                         <h2 className="mb-6 text-4xl font-black text-white md:text-6xl tracking-tighter">
-                            A Platform engineered for <br/>
+                            A Platform engineered for <br className="hidden md:block"/>
                             <span className="bg-gradient-to-r from-[#e8734a] to-[#f0a070] bg-clip-text text-transparent">Scale.</span>
                         </h2>
                         <p className="text-lg text-white/50 font-light">Stop managing spreadsheets. Start managing a logistics empire with enterprise-grade tools available out of the box.</p>
@@ -409,14 +408,14 @@ export default function Welcome() {
                 <div className="absolute -top-1/2 left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] bg-gradient-to-b from-[#e8734a]/20 to-transparent rounded-full blur-3xl pointer-events-none"></div>
                 
                 <div className="mx-auto max-w-4xl px-6 text-center relative z-10">
-                    <h2 className="mb-8 text-5xl font-black text-white md:text-7xl tracking-tighter">Ready to <span className="italic font-light">Ship?</span></h2>
-                    <p className="mb-12 text-xl text-white/60 font-light max-w-2xl mx-auto">Join the logistics revolution. Modernize your workflow with LogisTECH today.</p>
+                    <h2 className="mb-6 md:mb-8 text-4xl md:text-5xl lg:text-7xl font-black text-white tracking-tighter">Ready to <span className="italic font-light">Ship?</span></h2>
+                    <p className="mb-8 md:mb-12 text-lg md:text-xl text-white/60 font-light max-w-2xl mx-auto">Join the logistics revolution. Modernize your workflow with LogisTECH today.</p>
                     
-                    <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+                    <div className="flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
                         {isLoggedIn ? (
                             <Link
                                 href="/dashboard"
-                                className="inline-flex h-14 items-center justify-center gap-3 rounded-full bg-white px-10 text-lg font-bold text-black shadow-xl transition-all hover:scale-105"
+                                className="inline-flex h-12 md:h-14 items-center justify-center gap-3 rounded-full bg-white px-8 md:px-10 text-base md:text-lg font-bold text-black shadow-xl transition-all hover:scale-105"
                             >
                                 Enter Dashboard <ArrowRight className="h-5 w-5" />
                             </Link>
@@ -424,13 +423,13 @@ export default function Welcome() {
                             <>
                                 <Link
                                     href="/register"
-                                    className="inline-flex h-14 items-center justify-center gap-3 rounded-full bg-white px-10 text-lg font-bold text-black shadow-xl transition-all hover:scale-105"
+                                    className="inline-flex h-12 md:h-14 items-center justify-center gap-3 rounded-full bg-white px-8 md:px-10 text-base md:text-lg font-bold text-black shadow-xl transition-all hover:scale-105"
                                 >
                                     Create Free Account
                                 </Link>
                                 <Link
                                     href="/login"
-                                    className="inline-flex h-14 items-center justify-center gap-3 rounded-full border border-white/20 bg-transparent px-10 text-lg font-medium text-white transition-all hover:bg-white/10"
+                                    className="inline-flex h-12 md:h-14 items-center justify-center gap-3 rounded-full border border-white/20 bg-transparent px-8 md:px-10 text-base md:text-lg font-medium text-white transition-all hover:bg-white/10"
                                 >
                                     Sign In to Portal
                                 </Link>

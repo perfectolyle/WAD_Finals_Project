@@ -17,7 +17,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function OrdersIndex({ orders, search, isAdmin }: Props) {
     const [searchQuery, setSearchQuery] = useState(search || '');
-    const flash = (usePage().props as any).flash;
+    const flash = (usePage().props as { flash?: { success?: string } }).flash;
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,7 +25,7 @@ export default function OrdersIndex({ orders, search, isAdmin }: Props) {
     };
 
     const handleDelete = (id: number) => {
-        if (confirm(`Are you sure you want to delete Order #${id}?`)) {
+        if (confirm(`Are you sure you want to delete Order #${id.toString().padStart(4, '0')}?`)) {
             router.delete(`/orders/${id}`);
         }
     };
@@ -70,7 +70,7 @@ export default function OrdersIndex({ orders, search, isAdmin }: Props) {
                                 ) : (
                                     orders.data.map((order) => (
                                         <tr key={order.id} className="border-b border-border transition-colors hover:bg-muted/30">
-                                            <td className="px-6 py-4 font-medium">#{order.id}</td>
+                                            <td className="px-6 py-4 font-medium">#{order.id.toString().padStart(4, '0')}</td>
                                             {isAdmin && <td className="px-6 py-4">{order.user?.name}</td>}
                                             <td className="px-6 py-4">{new Date(order.order_date).toLocaleDateString()}</td>
                                             <td className="px-6 py-4">{order.products?.length ?? 0} items</td>
